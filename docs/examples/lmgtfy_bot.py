@@ -1,24 +1,28 @@
+#!/usr/bin/env python3
 from urllib.parse import quote_plus
 
 import praw
 
-QUESTIONS = ['what is', 'who is', 'what are']
-REPLY_TEMPLATE = '[Let me google that for you](http://lmgtfy.com/?q={})'
+QUESTIONS = ["what is", "who is", "what are"]
+REPLY_TEMPLATE = "[Let me google that for you](https://lmgtfy.com/?q={})"
 
 
 def main():
-    reddit = praw.Reddit(user_agent='LMGTFY (by /u/USERNAME)',
-                         client_id='CLIENT_ID', client_secret='CLIENT_SECRET',
-                         username='USERNAME', password='PASSWORD')
+    reddit = praw.Reddit(
+        client_id="CLIENT_ID",
+        client_secret="CLIENT_SECRET",
+        password="PASSWORD",
+        user_agent="LMGTFY (by u/USERNAME)",
+        username="USERNAME",
+    )
 
-    subreddit = reddit.subreddit('AskReddit')
+    subreddit = reddit.subreddit("AskReddit")
     for submission in subreddit.stream.submissions():
         process_submission(submission)
 
 
 def process_submission(submission):
-    # Ignore titles with more than 10 words as they probably are not simple
-    # questions.
+    # Ignore titles with more than 10 words as they probably are not simple questions.
     if len(submission.title.split()) > 10:
         return
 
@@ -27,11 +31,11 @@ def process_submission(submission):
         if question_phrase in normalized_title:
             url_title = quote_plus(submission.title)
             reply_text = REPLY_TEMPLATE.format(url_title)
-            print('Replying to: {}'.format(submission.title))
-            submission.reply(reply_text)
+            print(f"Replying to: {submission.title}")
+            submission.reply(body=reply_text)
             # A reply has been made so do not attempt to match other phrases.
             break
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

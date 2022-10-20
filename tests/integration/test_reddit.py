@@ -1,60 +1,126 @@
 """Test praw.reddit."""
+from base64 import urlsafe_b64encode
+from unittest import mock
+
+import pytest
+from prawcore.exceptions import BadRequest
+
+from praw.exceptions import RedditAPIException
 from praw.models import LiveThread
 from praw.models.reddit.base import RedditBase
 from praw.models.reddit.submission import Submission
-import mock
+from praw.models.reddit.subreddit import Subreddit
 
 from . import IntegrationTest
 
 
 class TestReddit(IntegrationTest):
+    def test_bad_request_without_json_text_plain_response(self):
+        with open("tests/integration/files/too_large.jpg", "rb") as fp:
+            junk = urlsafe_b64encode(fp.read()).decode()
+        with self.use_cassette(
+            placeholders=self.recorder.configure().default_cassette_options[
+                "placeholders"
+            ]
+            + [{"placeholder": "<CONTENT>", "replace": junk}]
+        ):
+            with pytest.raises(RedditAPIException) as excinfo:
+                self.reddit.request(
+                    method="GET",
+                    path=f"/api/morechildren?link_id=t3_n7r3uz&children={junk}",
+                )
+            assert str(excinfo.value) == "Bad Request"
+
+    def test_bad_request_without_json_text_html_response(self):
+        with open("tests/integration/files/comment_ids.txt") as fp:
+            ids = fp.read()[:8000]
+        with self.use_cassette(
+            placeholders=self.recorder.configure().default_cassette_options[
+                "placeholders"
+            ]
+            + [{"placeholder": "<COMMENT_IDS>", "replace": ids}]
+        ):
+            with pytest.raises(RedditAPIException) as excinfo:
+                self.reddit.request(
+                    method="GET",
+                    path=f"/api/morechildren?link_id=t3_n7r3uz&children={ids}",
+                )
+            assert (
+                str(excinfo.value)
+                == "<html><body><h1>400 Bad request</h1>\nYour browser sent an invalid request.\n</body></html>\n"
+            )
+
+    def test_bare_badrequest(self):
+        data = {
+            "sr": "AskReddit",
+            "field": "link",
+            "kind": "link",
+            "title": "l",
+            "text": "lol",
+            "show_error_list": True,
+        }
+        self.reddit.read_only = False
+        with self.use_cassette():
+            with pytest.raises(BadRequest):
+                self.reddit.post("/api/validate_submission_field", data=data)
+
     def test_info(self):
-        bases = ['t1_d7ltv', 't3_5dec', 't5_2qk']
+        bases = ["t1_d7ltv", "t3_5dec", "t5_2qk"]
         items = []
         for i in range(100):
             for base in bases:
-                items.append('{}{:02d}'.format(base, i))
+                items.append(f"{base}{i:02d}")
 
-        item_generator = self.reddit.info(items)
-        with self.recorder.use_cassette('TestReddit.test_info'):
+        item_generator = self.reddit.info(fullnames=items)
+        with self.use_cassette():
             results = list(item_generator)
         assert len(results) > 100
         for item in results:
             assert isinstance(item, RedditBase)
 
     def test_info_url(self):
-        with self.recorder.use_cassette('TestReddit.test_info_url'):
-            results = self.reddit.info(url='youtube.com')
+        with self.use_cassette():
+            results = list(self.reddit.info(url="youtube.com"))
         assert len(results) > 0
         for item in results:
             assert isinstance(item, Submission)
 
-    @mock.patch('time.sleep', return_value=None)
-    def test_live_call(self, _):
-        thread_id = 'ukaeu1ik4sw5'
-        thread = self.reddit.live(thread_id)
-        with self.recorder.use_cassette('TestReddit.test_live_call'):
-            assert thread.title == 'reddit updates'
+    def test_info_sr_names(self):
+        items = [self.reddit.subreddit("redditdev"), "reddit.com", "t:1337", "nl"]
+        item_generator = self.reddit.info(subreddits=items)
+        with self.recorder.use_cassette("TestReddit.test_info_sr_names"):
+            results = list(item_generator)
+        assert len(results) == 4
+        for item in results:
+            assert isinstance(item, Subreddit)
 
-    @mock.patch('time.sleep', return_value=None)
+    @mock.patch("time.sleep", return_value=None)
+    def test_live_call(self, _):
+        thread_id = "ukaeu1ik4sw5"
+        thread = self.reddit.live(thread_id)
+        with self.use_cassette():
+            assert thread.title == "reddit updates"
+
+    @mock.patch("time.sleep", return_value=None)
     def test_live_create(self, _):
         self.reddit.read_only = False
-        with self.recorder.use_cassette('TestReddit.test_live_create'):
-            live = self.reddit.live.create('PRAW Create Test')
+        with self.use_cassette():
+            live = self.reddit.live.create("PRAW Create Test")
             assert isinstance(live, LiveThread)
-            assert live.title == 'PRAW Create Test'
+            assert live.title == "PRAW Create Test"
 
     def test_live_info__contain_invalid_id(self):
-        ids = ['3rgnbke2rai6hen7ciytwcxadi',
-               'LiveUpdateEvent_sw7bubeycai6hey4ciytwamw3a',  # invalid
-               't8jnufucss07']  # NBA
+        ids = [
+            "3rgnbke2rai6hen7ciytwcxadi",
+            "LiveUpdateEvent_sw7bubeycai6hey4ciytwamw3a",  # invalid
+            "t8jnufucss07",
+        ]  # NBA
         gen = self.reddit.live.info(ids)
-        with self.recorder.use_cassette('TestReddit.test_live_info'
-                                        '__contain_invalid_id'):
+        with self.use_cassette():
             threads = list(gen)
         assert len(threads) == 2
 
-    @mock.patch('time.sleep', return_value=None)
+    @mock.patch("time.sleep", return_value=None)
     def test_live_info(self, _):
         ids = """
         ta40aifzobnv ta40l9u2ermf ta40ucdiq366 ta416hjgvbhy ta41ln5vsyaz
@@ -84,7 +150,7 @@ class TestReddit(IntegrationTest):
         ta72azs1l4u9 ta74r3dp2pt5 ta7pfcqdx9cl ta8zxbt2sk6z ta94nde51q4i
         """.split()
         gen = self.reddit.live.info(ids)
-        with self.recorder.use_cassette('TestReddit.test_live_info'):
+        with self.use_cassette():
             threads = list(gen)
         assert len(threads) > 100
         assert all(isinstance(thread, LiveThread) for thread in threads)
@@ -94,68 +160,105 @@ class TestReddit(IntegrationTest):
         assert sorted(thread_ids) == ids
 
     def test_live_now__featured(self):
-        with self.recorder.use_cassette('TestReddit.test_live_now'
-                                        '__featured'):
+        with self.use_cassette():
             thread = self.reddit.live.now()
         assert isinstance(thread, LiveThread)
-        assert thread.id == 'z2f981agq7ky'
+        assert thread.id == "z2f981agq7ky"
 
     def test_live_now__no_featured(self):
-        with self.recorder.use_cassette('TestReddit.test_live_now'
-                                        '__no_featured'):
+        with self.use_cassette():
             assert self.reddit.live.now() is None
+
+    def test_notes__call__(self):
+        self.reddit.read_only = False
+        with self.use_cassette():
+            notes = list(
+                self.reddit.notes(
+                    pairs=[
+                        (self.reddit.subreddit("SubTestBot1"), "Watchful1"),
+                        ("SubTestBot1", self.reddit.redditor("watchful12")),
+                        ("SubTestBot1", "spez"),
+                    ],
+                    things=[self.reddit.submission("jlbw48")],
+                )
+            )
+            assert len(notes) == 4
+            assert notes[0].user.name.lower() == "watchful1"
+            assert notes[1].user.name.lower() == "watchful12"
+            assert notes[2] is None
+
+    def test_notes__things(self):
+        self.reddit.read_only = False
+        with self.use_cassette():
+            thing = self.reddit.submission("tpbemz")
+            notes = list(self.reddit.notes.things(thing))
+            assert len(notes) == 10
+            assert notes[0].user == thing.author
 
     def test_random_subreddit(self):
         names = set()
-        with self.recorder.use_cassette(
-                'TestReddit.test_random_subreddit'):
+        with self.use_cassette():
             for i in range(3):
                 names.add(self.reddit.random_subreddit().display_name)
         assert len(names) == 3
 
     def test_subreddit_with_randnsfw(self):
-        with self.recorder.use_cassette(
-                'TestReddit.test_subreddit_with_randnsfw'):
-            subreddit = self.reddit.subreddit('randnsfw')
-            assert subreddit.display_name != 'randnsfw'
+        with self.use_cassette():
+            subreddit = self.reddit.subreddit("randnsfw")
+            assert subreddit.display_name != "randnsfw"
             assert subreddit.over18
 
     def test_subreddit_with_random(self):
-        with self.recorder.use_cassette(
-                'TestReddit.test_subreddit_with_random'):
-            assert self.reddit.subreddit('random').display_name != 'random'
+        with self.use_cassette():
+            assert self.reddit.subreddit("random").display_name != "random"
+
+    def test_username_available__available(self):
+        fake_user = "prawtestuserabcd1234"
+        with self.use_cassette(
+            placeholders=self.recorder.configure().default_cassette_options[
+                "placeholders"
+            ]
+            + [{"placeholder": "<AVAILABLE_NAME>", "replace": fake_user}]
+        ):
+            assert self.reddit.username_available(fake_user)
+
+    def test_username_available__unavailable(self):
+        with self.use_cassette():
+            assert not self.reddit.username_available("bboe")
+
+    def test_username_available_exception(self):
+        with self.use_cassette():
+            with pytest.raises(RedditAPIException) as exc:
+                self.reddit.username_available("a")
+            assert str(exc.value) == "BAD_USERNAME: 'invalid user name' on field 'user'"
 
 
 class TestDomainListing(IntegrationTest):
     def test_controversial(self):
-        with self.recorder.use_cassette(
-                'TestDomainListing.test_controversial'):
-            submissions = list(self.reddit.domain('youtube.com')
-                               .controversial())
+        with self.use_cassette():
+            submissions = list(self.reddit.domain("youtube.com").controversial())
         assert len(submissions) == 100
 
     def test_hot(self):
-        with self.recorder.use_cassette('TestDomainListing.test_hot'):
-            submissions = list(self.reddit.domain('youtube.com').hot())
+        with self.use_cassette():
+            submissions = list(self.reddit.domain("youtube.com").hot())
         assert len(submissions) == 100
 
     def test_new(self):
-        with self.recorder.use_cassette('TestDomainListing.test_new'):
-            submissions = list(self.reddit.domain('youtube.com').new())
+        with self.use_cassette():
+            submissions = list(self.reddit.domain("youtube.com").new())
         assert len(submissions) == 100
 
     def test_random_rising(self):
-        with self.recorder.use_cassette(
-                'TestDomainListing.test_random_rising'):
-            submissions = list(self.reddit.domain('youtube.com')
-                               .random_rising())
+        with self.use_cassette():
+            submissions = list(self.reddit.domain("youtube.com").random_rising())
         assert len(submissions) == 100
 
     def test_rising(self):
-        with self.recorder.use_cassette('TestDomainListing.test_rising'):
-            list(self.reddit.domain('youtube.com').rising())
+        with self.use_cassette():
+            list(self.reddit.domain("youtube.com").rising())
 
     def test_top(self):
-        with self.recorder.use_cassette('TestDomainListing.test_top'):
-            submissions = list(self.reddit.domain('youtube.com').top())
+        with self.use_cassette():
+            submissions = list(self.reddit.domain("youtube.com").top())
         assert len(submissions) == 100

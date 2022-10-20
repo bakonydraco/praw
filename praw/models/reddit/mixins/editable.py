@@ -1,25 +1,67 @@
 """Provide the EditableMixin class."""
+from typing import TYPE_CHECKING, Union
+
 from ....const import API_PATH
+from ...util import _deprecate_args
+
+if TYPE_CHECKING:  # pragma: no cover
+    import praw
 
 
-class EditableMixin(object):
+class EditableMixin:
     """Interface for classes that can be edited and deleted."""
 
     def delete(self):
-        """Delete the object."""
-        self._reddit.post(API_PATH['del'], {'id': self.fullname})
+        """Delete the object.
 
-    def edit(self, body):
-        """Replace the body of the object with ``body``.
+        Example usage:
 
-        :param body: The markdown formatted content for the updated object.
-        :returns: The current instance after updating its attributes.
+        .. code-block:: python
+
+            comment = reddit.comment("dkk4qjd")
+            comment.delete()
+
+            submission = reddit.submission("8dmv8z")
+            submission.delete()
 
         """
-        data = {'text': body, 'thing_id': self.fullname}
-        updated = self._reddit.post(API_PATH['edit'], data=data)[0]
-        for attribute in ['_fetched', '_reddit', '_submission', 'replies',
-                          'subreddit']:
+        self._reddit.post(API_PATH["del"], data={"id": self.fullname})
+
+    @_deprecate_args("body")
+    def edit(
+        self, *, body: str
+    ) -> Union["praw.models.Comment", "praw.models.Submission"]:
+        """Replace the body of the object with ``body``.
+
+        :param body: The Markdown formatted content for the updated object.
+
+        :returns: The current instance after updating its attributes.
+
+        Example usage:
+
+        .. code-block:: python
+
+            comment = reddit.comment("dkk4qjd")
+
+            # construct the text of an edited comment
+            # by appending to the old body:
+            edited_body = comment.body + "Edit: thanks for the gold!"
+            comment.edit(body=edited_body)
+
+        """
+        data = {
+            "text": body,
+            "thing_id": self.fullname,
+            "validate_on_submit": self._reddit.validate_on_submit,
+        }
+        updated = self._reddit.post(API_PATH["edit"], data=data)[0]
+        for attribute in [
+            "_fetched",
+            "_reddit",
+            "_submission",
+            "replies",
+            "subreddit",
+        ]:
             if attribute in updated.__dict__:
                 delattr(updated, attribute)
         self.__dict__.update(updated.__dict__)

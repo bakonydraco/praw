@@ -1,10 +1,16 @@
-"""Provide CommentForest for Submission comments."""
+"""Provide CommentForest for submission comments."""
 from heapq import heappop, heappush
+from typing import TYPE_CHECKING, List, Optional, Union
 
+from ..exceptions import DuplicateReplaceException
+from ..util import _deprecate_args
 from .reddit.more import MoreComments
 
+if TYPE_CHECKING:  # pragma: no cover
+    import praw
 
-class CommentForest(object):
+
+class CommentForest:
     """A forest of comments starts with multiple top-level comments.
 
     Each of these comments can be a tree of replies.
@@ -12,8 +18,8 @@ class CommentForest(object):
     """
 
     @staticmethod
-    def _gather_more_comments(tree, parent_tree=None):
-        """Return a list of MoreComments objects obtained from tree."""
+    def _gather_more_comments(tree, *, parent_tree=None):
+        """Return a list of :class:`.MoreComments` objects obtained from tree."""
         more_comments = []
         queue = [(None, x) for x in tree]
         while queue:
@@ -29,49 +35,57 @@ class CommentForest(object):
                     queue.append((comment, item))
         return more_comments
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int):
         """Return the comment at position ``index`` in the list.
 
         This method is to be used like an array access, such as:
 
-        .. code:: python
+        .. code-block:: python
 
-           first_comment = submission.comments[0]
+            first_comment = submission.comments[0]
 
-        Alternatively, the presence of this method enables one to iterate over
-        all top_level comments, like so:
+        Alternatively, the presence of this method enables one to iterate over all top
+        level comments, like so:
 
-        .. code:: python
+        .. code-block:: python
 
-           for comment in submission.comments:
-               print(comment.body)
+            for comment in submission.comments:
+                print(comment.body)
 
         """
         return self._comments[index]
 
-    def __init__(self, submission, comments=None):
-        """Initialize a CommentForest instance.
+    def __init__(
+        self,
+        submission: "praw.models.Submission",
+        comments: Optional[List["praw.models.Comment"]] = None,
+    ):
+        """Initialize a :class:`.CommentForest` instance.
 
-        :param submission: An instance of :class:`~.Subreddit` that is the
-            parent of the comments.
-        :param comments: Initialize the Forest with a list of comments
-            (default: None).
+        :param submission: An instance of :class:`.Submission` that is the parent of the
+            comments.
+        :param comments: Initialize the forest with a list of comments (default:
+            ``None``).
 
         """
         self._comments = comments
         self._submission = submission
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Return the number of top-level comments in the forest."""
         return len(self._comments)
 
     def _insert_comment(self, comment):
-        assert comment.name not in self._submission._comments_by_id
+        if comment.name in self._submission._comments_by_id:
+            raise DuplicateReplaceException
         comment.submission = self._submission
         if isinstance(comment, MoreComments) or comment.is_root:
             self._comments.append(comment)
         else:
-            assert comment.parent_id in self._submission._comments_by_id
+            assert comment.parent_id in self._submission._comments_by_id, (
+                "PRAW Error occurred. Please file a bug report and include the code"
+                " that caused the error."
+            )
             parent = self._submission._comments_by_id[comment.parent_id]
             parent.replies._comments.append(comment)
 
@@ -80,11 +94,11 @@ class CommentForest(object):
         for comment in comments:
             comment.submission = self._submission
 
-    def list(self):
-        """Return a flattened list of all Comments.
+    def list(self) -> List[Union["praw.models.Comment", "praw.models.MoreComments"]]:
+        """Return a flattened list of all comments.
 
-        This list may contain :class:`.MoreComments` instances if
-        :meth:`.replace_more` was not called first.
+        This list may contain :class:`.MoreComments` instances if :meth:`.replace_more`
+        was not called first.
 
         """
         comments = []
@@ -96,54 +110,62 @@ class CommentForest(object):
                 queue.extend(comment.replies)
         return comments
 
-    def replace_more(self, limit=32, threshold=0):
-        """Update the comment forest by resolving instances of MoreComments.
+    @_deprecate_args("limit", "threshold")
+    def replace_more(
+        self, *, limit: int = 32, threshold: int = 0
+    ) -> List["praw.models.MoreComments"]:
+        """Update the comment forest by resolving instances of :class:`.MoreComments`.
 
-        :param limit: The maximum number of :class:`.MoreComments` instances to
-            replace. Each replacement requires 1 API request. Set to ``None``
-            to have no limit, or to ``0`` to remove all :class:`.MoreComments`
-            instances without additional requests (default: 32).
+        :param limit: The maximum number of :class:`.MoreComments` instances to replace.
+            Each replacement requires 1 API request. Set to ``None`` to have no limit,
+            or to ``0`` to remove all :class:`.MoreComments` instances without
+            additional requests (default: ``32``).
         :param threshold: The minimum number of children comments a
-            :class:`.MoreComments` instance must have in order to be
-            replaced. :class:`.MoreComments` instances that represent "continue
-            this thread" links unfortunately appear to have 0
-            children. (default: 0).
+            :class:`.MoreComments` instance must have in order to be replaced.
+            :class:`.MoreComments` instances that represent "continue this thread" links
+            unfortunately appear to have 0 children (default: ``0``).
 
-        :returns: A list of :class:`.MoreComments` instances that were not
-            replaced.
+        :returns: A list of :class:`.MoreComments` instances that were not replaced.
+
+        :raises: ``prawcore.TooManyRequests`` when used concurrently.
 
         For example, to replace up to 32 :class:`.MoreComments` instances of a
         submission try:
 
-        .. code:: python
+        .. code-block:: python
 
-           submission = reddit.submission('3hahrw')
-           submission.comments.replace_more()
+            submission = reddit.submission("3hahrw")
+            submission.comments.replace_more()
 
-        Alternatively, to replace :class:`.MoreComments` instances within the
-        replies of a single comment try:
+        Alternatively, to replace :class:`.MoreComments` instances within the replies of
+        a single comment try:
 
-        .. code:: python
+        .. code-block:: python
 
-           comment = reddit.comment('d8r4im1')
-           comment.refresh()
-           comment.replies.replace_more()
+            comment = reddit.comment("d8r4im1")
+            comment.refresh()
+            comment.replies.replace_more()
 
-        .. note:: This method can take a long time as each replacement will
-                  discover at most 20 new :class:`.Comment` or
-                  :class:`.MoreComments` instances. As a result, consider
-                  looping and handling exceptions until the method returns
-                  successfully. For example:
+        .. note::
 
-                  .. code:: python
+            This method can take a long time as each replacement will discover at most
+            100 new :class:`.Comment` instances. As a result, consider looping and
+            handling exceptions until the method returns successfully. For example:
 
-                     while True:
-                         try:
-                             submission.comments.replace_more()
-                             break
-                         except PossibleExceptions:
-                             print('Handling replace_more exception')
-                             sleep(1)
+            .. code-block:: python
+
+                while True:
+                    try:
+                        submission.comments.replace_more()
+                        break
+                    except PossibleExceptions:
+                        print("Handling replace_more exception")
+                        sleep(1)
+
+        .. warning::
+
+            If this method is called, and the comments are refreshed, calling this
+            method again will result in a :class:`.DuplicateReplaceException`.
 
         """
         remaining = limit
@@ -153,8 +175,7 @@ class CommentForest(object):
         # Fetch largest more_comments until reaching the limit or the threshold
         while more_comments:
             item = heappop(more_comments)
-            if remaining is not None and remaining <= 0 or \
-               item.count < threshold:
+            if remaining is not None and remaining <= 0 or item.count < threshold:
                 skipped.append(item)
                 item._remove_from.remove(item)
                 continue
@@ -164,8 +185,9 @@ class CommentForest(object):
                 remaining -= 1
 
             # Add new MoreComment objects to the heap of more_comments
-            for more in self._gather_more_comments(new_comments,
-                                                   self._comments):
+            for more in self._gather_more_comments(
+                new_comments, parent_tree=self._comments
+            ):
                 more.submission = self._submission
                 heappush(more_comments, more)
             # Insert all items into the tree

@@ -2,11 +2,11 @@ Util
 ====
 
 .. autoclass:: praw.models.util.BoundedSet
-   :inherited-members:
+    :inherited-members:
 
 .. autoclass:: praw.models.util.ExponentialCounter
-   :inherited-members:
+    :inherited-members:
 
-.. automethod:: praw.models.util.permissions_string
+.. autofunction:: praw.models.util.permissions_string
 
-.. automethod:: praw.models.util.stream_generator
+.. autofunction:: praw.models.util.stream_generator

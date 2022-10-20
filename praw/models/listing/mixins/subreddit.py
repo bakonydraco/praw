@@ -1,81 +1,71 @@
 """Provide the SubredditListingMixin class."""
-from ....const import urljoin
+from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Union
+from urllib.parse import urljoin
+
+from ....util.cache import cachedproperty
 from ...base import PRAWBase
 from ..generator import ListingGenerator
 from .base import BaseListingMixin
 from .gilded import GildedListingMixin
 from .rising import RisingListingMixin
 
-
-class SubredditListingMixin(BaseListingMixin, GildedListingMixin,
-                            RisingListingMixin):
-    """Adds additional methods pertaining to Subreddit-like instances."""
-
-    @property
-    def comments(self):
-        """Provide an instance of :class:`.CommentHelper`.
-
-        For example, to output the author of the 25 most recent comments of
-        ``/r/redditdev`` execute:
-
-        .. code:: python
-
-           for comment in reddit.subreddit('redditdev').comments(limit=25):
-               print(comment.author)
-
-        """
-        if self._comments is None:
-            self._comments = CommentHelper(self)
-        return self._comments
-
-    def __init__(self, reddit, _data):
-        """Initialize a SubredditListingMixin instance.
-
-        :param reddit: An instance of :class:`.Reddit`.
-
-        """
-        super(SubredditListingMixin, self).__init__(reddit, _data)
-        self._comments = None
+if TYPE_CHECKING:  # pragma: no cover
+    import praw
 
 
 class CommentHelper(PRAWBase):
-    """Provide a set of functions to interact with a subreddit's comments."""
+    """Provide a set of functions to interact with a :class:`.Subreddit`'s comments."""
 
     @property
-    def _path(self):
-        return urljoin(self.subreddit._path, 'comments/')
+    def _path(self) -> str:
+        return urljoin(self.subreddit._path, "comments/")
 
-    def __init__(self, subreddit):
-        """Initialize a CommentHelper instance."""
-        super(CommentHelper, self).__init__(subreddit._reddit, None)
+    def __init__(self, subreddit: "praw.models.Subreddit"):
+        """Initialize a :class:`.CommentHelper` instance."""
+        super().__init__(subreddit._reddit, _data=None)
         self.subreddit = subreddit
 
-    def __call__(self, **generator_kwargs):
-        """Return a ListingGenerator for the Subreddit's comments.
+    def __call__(
+        self, **generator_kwargs: Union[str, int, Dict[str, str]]
+    ) -> Iterator["praw.models.Comment"]:
+        """Return a :class:`.ListingGenerator` for the :class:`.Subreddit`'s comments.
 
         Additional keyword arguments are passed in the initialization of
         :class:`.ListingGenerator`.
 
         This method should be used in a way similar to the example below:
 
-        .. code:: python
+        .. code-block:: python
 
-           for comment in reddit.subreddit('redditdev').comments(limit=25):
-               print(comment.author)
+            for comment in reddit.subreddit("test").comments(limit=25):
+                print(comment.author)
 
         """
         return ListingGenerator(self._reddit, self._path, **generator_kwargs)
 
-    def gilded(self, **generator_kwargs):
-        """Deprecated.
 
-        .. warning:: (Deprecated) This method will be removed in PRAW 6 because
-                     it doesn't actually restrict the results to gilded
-                     Comments. Use ``subreddit.gilded`` instead.
+class SubredditListingMixin(BaseListingMixin, GildedListingMixin, RisingListingMixin):
+    """Adds additional methods pertaining to subreddit-like instances."""
 
-        Additional keyword arguments are passed in the initialization of
-        :class:`.ListingGenerator`.
+    @cachedproperty
+    def comments(self) -> CommentHelper:
+        """Provide an instance of :class:`.CommentHelper`.
+
+        For example, to output the author of the 25 most recent comments of r/test
+        execute:
+
+        .. code-block:: python
+
+            for comment in reddit.subreddit("test").comments(limit=25):
+                print(comment.author)
 
         """
-        return ListingGenerator(self._reddit, urljoin(self._path, 'gilded'),
-                                **generator_kwargs)
+        return CommentHelper(self)
+
+    def __init__(self, reddit: "praw.Reddit", _data: Optional[Dict[str, Any]]):
+        """Initialize a :class:`.SubredditListingMixin` instance.
+
+        :param reddit: An instance of :class:`.Reddit`.
+
+        """
+        super().__init__(reddit, _data=_data)
