@@ -1,4 +1,5 @@
 """Provide the ReplyableMixin class."""
+
 from typing import TYPE_CHECKING, Optional
 
 from ....const import API_PATH

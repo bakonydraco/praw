@@ -1,4 +1,5 @@
 """Provide classes related to inline media."""
+
 from ..util import _deprecate_args
 
 

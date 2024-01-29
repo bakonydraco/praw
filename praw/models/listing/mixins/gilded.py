@@ -1,4 +1,5 @@
 """Provide the GildedListingMixin class."""
+
 from typing import Any, Dict, Iterator, Union
 from urllib.parse import urljoin
 

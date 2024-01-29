@@ -3919,7 +3919,6 @@ class SubredditStylesheet:
             ``img_src``.
 
         :raises: ``prawcore.TooLarge`` if the overall request body is too large.
-
         :raises: :class:`.RedditAPIException` if there are other issues with the
             uploaded image. Unfortunately the exception info might not be very specific,
             so try through the website with the same image to see what the problem
@@ -3942,7 +3941,6 @@ class SubredditStylesheet:
         :param image_path: A path to a jpeg or png image.
 
         :raises: ``prawcore.TooLarge`` if the overall request body is too large.
-
         :raises: :class:`.RedditAPIException` if there are other issues with the
             uploaded image. Unfortunately the exception info might not be very specific,
             so try through the website with the same image to see what the problem
@@ -3975,7 +3973,6 @@ class SubredditStylesheet:
             ``"left"``).
 
         :raises: ``prawcore.TooLarge`` if the overall request body is too large.
-
         :raises: :class:`.RedditAPIException` if there are other issues with the
             uploaded image. Unfortunately the exception info might not be very specific,
             so try through the website with the same image to see what the problem
@@ -4014,7 +4011,6 @@ class SubredditStylesheet:
         Fails if the :class:`.Subreddit` does not have an additional image defined.
 
         :raises: ``prawcore.TooLarge`` if the overall request body is too large.
-
         :raises: :class:`.RedditAPIException` if there are other issues with the
             uploaded image. Unfortunately the exception info might not be very specific,
             so try through the website with the same image to see what the problem
@@ -4043,7 +4039,6 @@ class SubredditStylesheet:
             ``img_src``.
 
         :raises: ``prawcore.TooLarge`` if the overall request body is too large.
-
         :raises: :class:`.RedditAPIException` if there are other issues with the
             uploaded image. Unfortunately the exception info might not be very specific,
             so try through the website with the same image to see what the problem
@@ -4067,7 +4062,6 @@ class SubredditStylesheet:
             ``img_src``.
 
         :raises: ``prawcore.TooLarge`` if the overall request body is too large.
-
         :raises: :class:`.RedditAPIException` if there are other issues with the
             uploaded image. Unfortunately the exception info might not be very specific,
             so try through the website with the same image to see what the problem
@@ -4091,7 +4085,6 @@ class SubredditStylesheet:
             ``img_src``.
 
         :raises: ``prawcore.TooLarge`` if the overall request body is too large.
-
         :raises: :class:`.RedditAPIException` if there are other issues with the
             uploaded image. Unfortunately the exception info might not be very specific,
             so try through the website with the same image to see what the problem
@@ -4182,9 +4175,7 @@ class SubredditWiki:
         new.edit(content=content, reason=reason, **other_settings)
         return new
 
-    def revisions(
-        self, **generator_kwargs: Any
-    ) -> Generator[
+    def revisions(self, **generator_kwargs: Any) -> Generator[
         Dict[str, Optional[Union["praw.models.Redditor", WikiPage, str, int, bool]]],
         None,
         None,

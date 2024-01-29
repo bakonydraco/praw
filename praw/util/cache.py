@@ -1,4 +1,5 @@
 """Caching utilities."""
+
 from typing import Any, Callable, Optional
 
 

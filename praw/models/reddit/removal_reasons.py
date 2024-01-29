@@ -1,4 +1,5 @@
 """Provide the Removal Reason class."""
+
 from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Union
 from warnings import warn
 

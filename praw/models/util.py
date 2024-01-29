@@ -1,4 +1,5 @@
 """Provide helper classes used by other models."""
+
 import random
 import time
 from collections import OrderedDict
