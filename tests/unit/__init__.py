@@ -1,4 +1,5 @@
 """PRAW Unit test suite."""
+
 from praw import Reddit
 
 

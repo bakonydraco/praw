@@ -1,4 +1,5 @@
 """Provide the RedditBase class."""
+
 from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 from urllib.parse import urlparse
 

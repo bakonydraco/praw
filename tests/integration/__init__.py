@@ -1,4 +1,5 @@
 """PRAW Integration test suite."""
+
 import inspect
 import logging
 

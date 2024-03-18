@@ -1,4 +1,5 @@
 """Provide the MessageableMixin class."""
+
 from typing import TYPE_CHECKING, Optional, Union
 
 from ....const import API_PATH

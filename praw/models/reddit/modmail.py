@@ -1,4 +1,5 @@
 """Provide models for new modmail."""
+
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from ...const import API_PATH

@@ -1,4 +1,5 @@
 """Provide the VotableMixin class."""
+
 from ....const import API_PATH
 
 

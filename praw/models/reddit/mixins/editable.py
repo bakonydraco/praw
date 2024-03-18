@@ -1,4 +1,5 @@
 """Provide the EditableMixin class."""
+
 from typing import TYPE_CHECKING, Union
 
 from ....const import API_PATH

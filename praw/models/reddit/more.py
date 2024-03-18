@@ -1,4 +1,5 @@
 """Provide the MoreComments class."""
+
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from ...const import API_PATH

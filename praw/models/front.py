@@ -1,4 +1,5 @@
 """Provide the Front class."""
+
 from typing import TYPE_CHECKING, Iterator, Union
 from urllib.parse import urljoin
 
