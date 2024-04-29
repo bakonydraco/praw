@@ -1,4 +1,5 @@
 """Test praw.models.user."""
+
 from unittest import mock
 
 import prawcore.exceptions

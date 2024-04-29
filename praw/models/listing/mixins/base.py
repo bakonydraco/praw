@@ -1,4 +1,5 @@
 """Provide the BaseListingMixin class."""
+
 from typing import Any, Dict, Iterator, Union
 from urllib.parse import urljoin
 

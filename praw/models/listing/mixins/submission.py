@@ -1,4 +1,5 @@
 """Provide the SubmissionListingMixin class."""
+
 from typing import TYPE_CHECKING, Dict, Iterator, Union
 
 from ....const import API_PATH

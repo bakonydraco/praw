@@ -1,4 +1,5 @@
 """Provides the User class."""
+
 from typing import TYPE_CHECKING, Dict, Iterator, List, Optional, Union
 from warnings import warn
 
@@ -237,7 +238,6 @@ class User(PRAWBase):
             ``True``).
 
         :raises: ``prawcore.BadRequest`` when pinning a removed or deleted submission.
-
         :raises: ``prawcore.Forbidden`` when pinning a submission the authenticated user
             is not the author of.
 

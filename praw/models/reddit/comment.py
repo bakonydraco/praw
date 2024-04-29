@@ -1,4 +1,5 @@
 """Provide the Comment class."""
+
 from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
 from ...const import API_PATH

@@ -1,4 +1,5 @@
 """Test praw.models.Trophy"""
+
 from unittest import mock
 
 from .. import IntegrationTest

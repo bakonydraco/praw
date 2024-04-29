@@ -1,4 +1,5 @@
 """Provide the RisingListingMixin class."""
+
 from typing import TYPE_CHECKING, Dict, Iterator, Union
 from urllib.parse import urljoin
 

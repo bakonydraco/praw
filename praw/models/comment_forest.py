@@ -1,4 +1,5 @@
 """Provide CommentForest for submission comments."""
+
 from heapq import heappop, heappush
 from typing import TYPE_CHECKING, List, Optional, Union
 

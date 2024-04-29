@@ -1,4 +1,5 @@
 """Provide the Emoji class."""
+
 import os
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 

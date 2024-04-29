@@ -1,4 +1,5 @@
 """Represent the :class:`.Trophy` class."""
+
 from typing import TYPE_CHECKING, Any, Dict, Union
 
 from .base import PRAWBase
