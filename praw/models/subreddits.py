@@ -1,4 +1,5 @@
 """Provide the Subreddits class."""
+
 from typing import TYPE_CHECKING, Dict, Iterator, List, Optional, Union
 from warnings import warn
 

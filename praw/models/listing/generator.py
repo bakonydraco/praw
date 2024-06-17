@@ -1,4 +1,5 @@
 """Provide the ListingGenerator class."""
+
 from copy import deepcopy
 from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Union
 

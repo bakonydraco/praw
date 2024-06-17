@@ -1,4 +1,5 @@
 """Provide the BaseList class."""
+
 from typing import TYPE_CHECKING, Any, Dict, Iterator
 
 from ..base import PRAWBase

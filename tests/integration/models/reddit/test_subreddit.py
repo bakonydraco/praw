@@ -1,4 +1,5 @@
 """Test praw.models.subreddit."""
+
 import socket
 import sys
 from json import dumps
@@ -611,7 +612,7 @@ class TestSubreddit(IntegrationTest):
     @mock.patch("time.sleep", return_value=None)
     @mock.patch(
         "websocket.create_connection",
-        side_effect=socket.timeout
+        side_effect=socket.timeout,
         # happens with timeout=0.00001
     )
     def test_submit_image__timeout_2(self, _, __):
@@ -807,7 +808,7 @@ class TestSubreddit(IntegrationTest):
     @mock.patch("time.sleep", return_value=None)
     @mock.patch(
         "websocket.create_connection",
-        side_effect=socket.timeout
+        side_effect=socket.timeout,
         # happens with timeout=0.00001
     )
     def test_submit_video__timeout_2(self, _, __):

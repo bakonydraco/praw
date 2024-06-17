@@ -1,4 +1,5 @@
 """Provide the PRAWBase superclass."""
+
 from copy import deepcopy
 from typing import TYPE_CHECKING, Any, Dict, Optional
 

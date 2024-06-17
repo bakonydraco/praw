@@ -1,4 +1,5 @@
 """Positional argument deprecation decorator."""
+
 import inspect
 from functools import wraps
 from typing import Any, Callable, Tuple

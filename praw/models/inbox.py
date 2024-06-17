@@ -1,4 +1,5 @@
 """Provide the Front class."""
+
 from typing import TYPE_CHECKING, Dict, Iterator, List, Union
 
 from ..const import API_PATH

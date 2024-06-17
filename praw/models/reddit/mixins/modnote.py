@@ -1,4 +1,5 @@
 """Provide the ModNoteMixin class."""
+
 from typing import TYPE_CHECKING, Generator, Optional
 
 if TYPE_CHECKING:  # pragma: no cover

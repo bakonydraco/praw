@@ -1,4 +1,5 @@
 """Provide the Submission class."""
+
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from urllib.parse import urljoin
 from warnings import warn

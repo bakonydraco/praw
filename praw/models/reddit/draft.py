@@ -1,4 +1,5 @@
 """Provide the draft class."""
+
 from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
 from ...const import API_PATH
@@ -76,9 +77,11 @@ class Draft(RedditBase):
             data.update(
                 {
                     "subreddit": subreddit.fullname,
-                    "target": "profile"
-                    if subreddit.display_name.startswith("u_")
-                    else "subreddit",
+                    "target": (
+                        "profile"
+                        if subreddit.display_name.startswith("u_")
+                        else "subreddit"
+                    ),
                 }
             )
         data.update(draft_kwargs)

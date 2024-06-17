@@ -1,4 +1,5 @@
 """This is to generate the awards table."""
+
 import argparse
 import random
 import socket

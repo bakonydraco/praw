@@ -1,4 +1,5 @@
 """Test praw.models.LiveThread"""
+
 from unittest import mock
 
 import pytest

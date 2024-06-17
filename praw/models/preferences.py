@@ -1,4 +1,5 @@
 """Provide the Preferences class."""
+
 from json import dumps
 from typing import TYPE_CHECKING, Dict, Union
 

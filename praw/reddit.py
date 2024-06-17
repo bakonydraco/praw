@@ -1,4 +1,5 @@
 """Provide the Reddit class."""
+
 import asyncio
 import configparser
 import os
