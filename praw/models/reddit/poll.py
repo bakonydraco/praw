@@ -1,4 +1,5 @@
 """Provide poll-related classes."""
+
 from typing import Any, Optional
 
 from ...util import cachedproperty

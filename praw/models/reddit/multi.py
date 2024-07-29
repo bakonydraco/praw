@@ -1,4 +1,5 @@
 """Provide the Multireddit class."""
+
 import re
 from json import dumps
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union

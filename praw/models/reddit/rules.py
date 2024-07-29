@@ -1,4 +1,5 @@
 """Provide the Rule class."""
+
 from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Union
 from urllib.parse import quote
 from warnings import warn
@@ -405,9 +406,9 @@ class SubredditRulesModeration:
             "description": description,
             "kind": kind,
             "short_name": short_name,
-            "violation_reason": short_name
-            if violation_reason is None
-            else violation_reason,
+            "violation_reason": (
+                short_name if violation_reason is None else violation_reason
+            ),
         }
         new_rule = self.subreddit_rules._reddit.post(
             API_PATH["add_subreddit_rule"], data=data

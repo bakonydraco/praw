@@ -1,4 +1,5 @@
 """Test praw.models.inbox."""
+
 from unittest import mock
 
 import pytest

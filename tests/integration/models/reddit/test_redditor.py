@@ -1,4 +1,5 @@
 """Test praw.models.redditor."""
+
 from unittest import mock
 
 import pytest

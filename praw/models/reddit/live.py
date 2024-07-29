@@ -1,4 +1,5 @@
 """Provide the LiveThread class."""
+
 from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Union
 
 from ...const import API_PATH

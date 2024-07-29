@@ -1,4 +1,5 @@
 """Provide the ModAction class."""
+
 from typing import TYPE_CHECKING, Union
 
 from .base import PRAWBase

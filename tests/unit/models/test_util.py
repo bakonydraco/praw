@@ -1,4 +1,5 @@
 """Test praw.models.util."""
+
 from collections import namedtuple
 from unittest import mock
 
