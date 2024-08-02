@@ -1,4 +1,5 @@
 """This file should be updated as files/classes/functions are deprecated."""
+
 import pytest
 
 from praw.util import _deprecate_args

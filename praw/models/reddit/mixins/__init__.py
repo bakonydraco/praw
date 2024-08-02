@@ -1,4 +1,5 @@
 """Package providing reddit class mixins."""
+
 from json import dumps
 from typing import TYPE_CHECKING, Optional
 

@@ -1,4 +1,5 @@
 """Provide the ModNote class."""
+
 from praw.endpoints import API_PATH
 
 from .base import PRAWBase

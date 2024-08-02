@@ -1,4 +1,5 @@
 """Provide the DomainListing class."""
+
 from typing import TYPE_CHECKING
 
 from ...const import API_PATH

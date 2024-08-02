@@ -1,4 +1,5 @@
 """Provide the SavableMixin class."""
+
 from typing import Optional
 
 from ....const import API_PATH

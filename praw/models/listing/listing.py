@@ -1,4 +1,5 @@
 """Provide the Listing class."""
+
 from typing import Any, Optional
 
 from ..base import PRAWBase

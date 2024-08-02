@@ -1,4 +1,5 @@
 """Provide the Redditor class."""
+
 from json import dumps
 from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Union
 

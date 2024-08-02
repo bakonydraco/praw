@@ -11,6 +11,7 @@ PRAW users will create their own token manager classes suitable for their needs.
     Tokens managers have been deprecated and will be removed in the near future.
 
 """
+
 from abc import ABC, abstractmethod
 
 from . import _deprecate_args

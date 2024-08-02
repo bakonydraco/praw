@@ -1,4 +1,5 @@
 """Provide the :class:`.UserSubreddit` class."""
+
 import inspect
 from typing import TYPE_CHECKING, Dict, Union
 from warnings import warn

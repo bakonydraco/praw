@@ -1,4 +1,5 @@
 """Provide the helper classes."""
+
 from json import dumps
 from typing import TYPE_CHECKING, Generator, List, Optional, Union
 

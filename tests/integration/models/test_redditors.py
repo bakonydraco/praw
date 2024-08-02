@@ -1,4 +1,5 @@
 """Test praw.models.redditors."""
+
 from unittest import mock
 
 from praw.models import Redditor, Subreddit

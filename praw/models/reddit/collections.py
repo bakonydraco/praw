@@ -1,4 +1,5 @@
 """Provide Collections functionality."""
+
 from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Union
 
 from ...const import API_PATH
